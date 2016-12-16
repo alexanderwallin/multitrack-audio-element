@@ -12,6 +12,8 @@ Several older articles and Q&A threads, as well as MDN, mention a `MediaControll
 
 Firefox hasn't implement [any of them](https://bugzilla.mozilla.org/show_bug.cgi?id=847377), and Chromium has [unshipped it](https://groups.google.com/a/chromium.org/forum/#!topic/blink-dev/MVcoNSPs1UQ).
 
+-----
+
 #### `AudioTrackList` and `AudioTrack`
 
 https://html.spec.whatwg.org/multipage/embedded-content.html#audiotracklist-and-videotracklist-objects
@@ -31,6 +33,8 @@ Only implemented by Safari and IE (!). It allows for zero or more simultaneously
 * `"commentary"`
 * `""`
 
+-----
+
 #### `AudioStreamTrack`
 
 https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack
@@ -40,5 +44,9 @@ Part of the MediaStream API.
 
 ## Ideas and notes
 
-* Could you accomplish the core functionality by just sharing an event system?
+* Could we accomplish the core functionality by just sharing an event system?
 * Shimming `MediaController` and `mediaGroup` is one alternative
+
+#### Possible extensions
+
+* howler.js
