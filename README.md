@@ -18,7 +18,18 @@ https://html.spec.whatwg.org/multipage/embedded-content.html#audiotracklist-and-
 
 > An AudioTrackList object represents a dynamic list of zero or more audio tracks, of which zero or more can be enabled at a time. Each audio track is represented by an AudioTrack object.
 
-Only implemented by Safari and IE (!).
+Only implemented by Safari and IE (!). It allows for zero or more simultaneously activated tracks. The list of track `kind`s does not include a `"partial"`, `"instrument"` or anything similar:
+
+* `"alternative"`
+* `"captions"`
+* `"descriptions"`
+* `"main"`
+* `"main-desc"`
+* `"sign"`
+* `"subtitles"`
+* `"translation"`
+* `"commentary"`
+* `""`
 
 #### `AudioStreamTrack`
 
