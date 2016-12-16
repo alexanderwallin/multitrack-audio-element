@@ -4,7 +4,7 @@ A JavaScript (and HTML5) audio object that supports synchronized multitrack play
 Feel free to edit this README freely!
 
 
-### Research
+## Research
 
 #### `MediaController` and `mediaGroup`
 
@@ -27,7 +27,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack
 Part of the MediaStream API.
 
 
-### Ideas and notes
+## Ideas and notes
 
 * Could you accomplish the core functionality by just sharing an event system?
 * Shimming `MediaController` and `mediaGroup` is one alternative
