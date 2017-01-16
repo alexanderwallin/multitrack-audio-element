@@ -50,3 +50,31 @@ Part of the MediaStream API.
 #### Possible extensions
 
 * howler.js
+
+-----
+
+## 2017-01-16
+
+* Tricky to synchronize skipping ahead with mp3 sources (dash has solved this?)
+* How to approach caching? - Save fetched audio so that one can skip back seamlessly
+* Aurora.js for (demuxing and) decoding
+* Streams?
+
+### What do we actually need?
+
+* A developer creates a player from a list of tracks and their source URLs, and can then use an API with `load()`, `play(time)`, `seek(time)` etc.
+* Any audio that is supported by `decodeAudio(ArrayBuffer)` should be decodable on the fly.
+* The player acts as a lowest common denomenator event grouper that tells the developer when group of tracks needs buffering, when it's ready etc, just like a regular audio element. 
+* A player (code only, no UI) that stops playback when in buffering mode and resumes when a grouped `canplaythrough` event is triggered.
+
+### HTML tag example
+
+```xml
+<multitrack-audio>
+  <track>
+    <source src="track1.mp3" />
+  </track>
+
+  <tracks src="song.stems.mp4" />
+</multitrack-audio>
+```
