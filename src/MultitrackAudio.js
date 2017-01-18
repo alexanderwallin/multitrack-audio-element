@@ -207,8 +207,9 @@ export default class MultitrackAudio {
   set currentTime(currentTime) {
     const parsedTime = Number(currentTime)
 
-    if (Number.isFinite(parsedTime)) {
+    if (Number.isFinite(parsedTime) && this._currentTime !== parsedTime) {
       this._currentTime = parsedTime
+      this.__eventEmitter.emit('seeking', new CustomEvent('seeking'))
     }
     else {
       throw new TypeError(
