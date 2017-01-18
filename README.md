@@ -1,8 +1,27 @@
+<p align="center">
+<img src="multitrack-audio-element-logo.png" width="294" />
+</p>
+
 # multitrack-audio-element
+
 A JavaScript (and HTML5) audio object that supports synchronized multitrack playback and streaming.
 
 Feel free to edit this README freely!
 
+## Developing
+
+```sh
+# Run tests
+npm test
+
+# Lint all the things
+npm run lint
+
+# Build ES5-friendly output
+npm run build
+```
+
+-----
 
 ## Research
 
@@ -53,21 +72,23 @@ Part of the MediaStream API.
 
 -----
 
-## 2017-01-16
+## Notes
+
+### 2017-01-16
 
 * Tricky to synchronize skipping ahead with mp3 sources (dash has solved this?)
 * How to approach caching? - Save fetched audio so that one can skip back seamlessly
 * Aurora.js for (demuxing and) decoding
 * Streams?
 
-### What do we actually need?
+#### What do we actually need?
 
 * A developer creates a player from a list of tracks and their source URLs, and can then use an API with `load()`, `play(time)`, `seek(time)` etc.
 * Any audio that is supported by `decodeAudio(ArrayBuffer)` should be decodable on the fly.
-* The player acts as a lowest common denomenator event grouper that tells the developer when group of tracks needs buffering, when it's ready etc, just like a regular audio element. 
+* The player acts as a lowest common denomenator event grouper that tells the developer when group of tracks needs buffering, when it's ready etc, just like a regular audio element.
 * A player (code only, no UI) that stops playback when in buffering mode and resumes when a grouped `canplaythrough` event is triggered.
 
-### HTML tag example
+#### HTML tag example
 
 ```xml
 <multitrack-audio>
