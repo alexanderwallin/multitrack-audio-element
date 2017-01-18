@@ -1,6 +1,7 @@
 /* eslint no-return-assign: 0 */
 
 import test from 'ava'
+import sinon from 'sinon'
 
 import MultitrackAudio, { CrossOrigin, MediaReadyState, Preload } from '../src/MultitrackAudio.js'
 import { parsesAnyValueAsBool } from './_test-utils.js'
@@ -166,5 +167,74 @@ test('volume throws a RangeError when given value is outside the range [0, 1]', 
   t.is(audio.volume, originalVolume)
 })
 
+test('volume changes triggers the `volumechange` event', t => {
+  const onVolumeChange = sinon.spy()
+  audio.addEventListener('volumechange', onVolumeChange)
+  audio.volume = 0.5
+  audio.volume = 0.5
+  t.is(onVolumeChange.callCount, 1)
+  audio.volume = 0.25
+  t.is(onVolumeChange.callCount, 2)
+})
+
 test.todo('Test TimeRange attributes')
 test.todo('The autoplay attribute has precedence over preload')
+
+/*
+ * Methods
+ */
+
+test('load() triggers `emptied` event', t => {
+  const onEmptied = sinon.spy()
+  audio.addEventListener('emptied', onEmptied)
+  audio.load()
+  t.is(onEmptied.callCount, 1)
+})
+
+test('pause() triggers `pause` event', t => {
+  const onPause = sinon.spy()
+  audio.addEventListener('pause', onPause)
+  audio.play()
+  audio.pause()
+  t.is(onPause.callCount, 1)
+})
+
+test('play() triggers the `play` and/or `playing` events', t => {
+  const onPlay = sinon.spy()
+  const onPlaying = sinon.spy()
+
+  audio.addEventListener('play', onPlay)
+  audio.addEventListener('playing', onPlaying)
+
+  audio.play()
+  t.is(onPlaying.callCount, 1)
+
+  audio.pause()
+  audio.play()
+  t.is(onPlay.callCount, 1)
+  t.is(onPlaying.callCount, 2)
+})
+
+test('seek(time) triggers `seeking` event', t => {
+  const onSeeking = sinon.spy()
+  audio.addEventListener('seeking', onSeeking)
+  audio.seek(1.23)
+  t.is(onSeeking.callCount, 1)
+})
+
+test.todo('Implement and test the event abort')
+test.todo('Implement and test the event canplay')
+test.todo('Implement and test the event canplaythrough')
+test.todo('Implement and test the event durationchange')
+test.todo('Implement and test the event ended')
+test.todo('Implement and test the event error')
+test.todo('Implement and test the event loadeddata')
+test.todo('Implement and test the event loadedmetadata')
+test.todo('Implement and test the event loadstart')
+test.todo('Implement and test the event progress')
+test.todo('Implement and test the event ratechange')
+test.todo('Implement and test the event seeked')
+test.todo('Implement and test the event stalled')
+test.todo('Implement and test the event suspend')
+test.todo('Implement and test the event timeupdate')
+test.todo('Implement and test the event waiting')
