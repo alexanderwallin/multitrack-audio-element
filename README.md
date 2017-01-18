@@ -4,6 +4,8 @@
 
 # multitrack-audio-element
 
+***NOTE: This repo is in a research/lab phase, and is not ready for use.***
+
 A JavaScript (and HTML5) audio object that supports synchronized multitrack playback and streaming.
 
 Feel free to edit this README freely!
