@@ -43,7 +43,5 @@
     "require": "babel-register",
     "babel": "inherit"
   },
-  "dependencies": {
-    "lodash.values": "^4.3.0"
-  }
+  "dependencies": {}
 }

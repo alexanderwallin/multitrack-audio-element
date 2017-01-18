@@ -1,5 +1,3 @@
-import values from 'lodash.values'
-
 /**
  * `preload` attribute enum
  */
