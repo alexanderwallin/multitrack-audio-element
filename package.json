@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "lint": "eslint src tests",
-    "test": "ava tests",
+    "test": "ava tests -v",
     "prebuild": "rimraf dist",
     "build": "babel --out-dir dist src"
   },
