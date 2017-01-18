@@ -19,7 +19,7 @@
     "url": "git+https://github.com/alexanderwallin/multitrack-audio-element.git"
   },
   "author": "Alexander Wallin <office@alexanderwallin.com> (http://alexanderwallin.com)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/alexanderwallin/multitrack-audio-element/issues"
   },
