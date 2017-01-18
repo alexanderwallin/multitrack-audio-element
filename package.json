@@ -44,5 +44,8 @@
     "require": "babel-register",
     "babel": "inherit"
   },
-  "dependencies": {}
+  "dependencies": {
+    "customevent-shim": "^0.1.0",
+    "eventemitter3": "^2.0.2"
+  }
 }

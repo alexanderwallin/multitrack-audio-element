@@ -1,3 +1,7 @@
+import EventEmitter from 'eventemitter3'
+
+import './CustomEvent.shim.js'
+
 /**
  * `crossOrigin` attribute enum
  *
@@ -6,6 +10,98 @@
 export const CrossOrigin = {
   ANONYMOUS: 'anonymous',
   USE_CREDENTIALS: 'use-credentials',
+}
+
+/**
+ * Media event types
+ *
+ * @type {Object}
+ */
+export const MediaEventType = {
+
+  // Sent when playback is aborted; for example, if the media is playing and is restarted from
+  // the beginning, this event is sent.
+  ABORT: 'abort',
+
+  // Sent when enough data is available that the media can be played, at least for a couple of
+  // frames.  This corresponds to the HAVE_ENOUGH_DATA readyState.
+  CANPLAY: 'canplay',
+
+  //  Sent when the ready state changes to CAN_PLAY_THROUGH, indicating that the entire media
+  //  can be played without interruption, assuming the download rate remains at least at the
+  //  current level. It will also be fired when playback is toggled between paused and playing.
+  //  Note: Manually setting the currentTime will eventually fire a canplaythrough event in
+  //  firefox. Other browsers might not fire this event.
+  CANPLAYTHROUGH: 'canplaythrough',
+
+  //  The metadata has loaded or changed, indicating a change in duration of the media.  This
+  //  is sent, for example, when the media has loaded enough that the duration is known.
+  DURATIONCHANGE: 'durationchange',
+
+  // The media has become empty; for example, this event is sent if the media has already been
+  // loaded (or partially loaded), and the load() method is called to reload it.
+  EMPTIED: 'emptied',
+
+  // Sent when playback completes.
+  ENDED: 'ended',
+
+  // Sent when an error occurs.  The element's error attribute contains more information. See
+  // Error handling for details.
+  ERROR: 'error',
+
+  //  The first frame of the media has finished loading.
+  LOADEDDATA: 'loadeddata',
+
+  //  The media's metadata has finished loading; all attributes now contain as much useful
+  //  information as they're going to.
+  LOADEDMETADATA: 'loadedmetadata',
+
+  // Sent when loading of the media begins.
+  LOADSTART: 'loadstart',
+
+  // Sent when playback is paused.
+  PAUSE: 'pause',
+
+  //  Sent when playback of the media starts after having been paused; that is, when playback
+  //  is resumed after a prior pause event.
+  PLAY: 'play',
+
+  // Sent when the media begins to play (either for the first time, after having been paused,
+  // or after ending and then restarting).
+  PLAYING: 'playing',
+
+  //  Sent periodically to inform interested parties of progress downloading the media.
+  //  Information about the current amount of the media that has been downloaded is available
+  //  in the media element's buffered attribute.
+  PROGRESS: 'progress',
+
+  //  Sent when the playback speed changes.
+  RATECHANGE: 'ratechange',
+
+  //  Sent when a seek operation completes.
+  SEEKED: 'seeked',
+
+  // Sent when a seek operation begins.
+  SEEKING: 'seeking',
+
+  // Sent when the user agent is trying to fetch media data, but data is unexpectedly not
+  // forthcoming.
+  STALLED: 'stalled',
+
+  // Sent when loading of the media is suspended; this may happen either because the download
+  // has completed or because it has been paused for any other reason.
+  SUSPEND: 'suspend',
+
+  //  The time indicated by the element's currentTime attribute has changed.
+  TIMEUPDATE: 'timeupdate',
+
+  //  Sent when the audio volume changes (both when the volume is set and when the muted
+  //  attribute is changed).
+  VOLUMECHANGE: 'volumechange',
+
+  // Sent when the requested operation (such as playback) is delayed pending the completion
+  // of another operation (such as a seek).
+  WAITING: 'waiting',
 }
 
 /**
@@ -30,7 +126,7 @@ export const MediaReadyState = {
   // into the future is available (in other words, at least two frames of video, for example).
   HAVE_FUTURE_DATA: 3,
 
-  // Enough data is available—and the download rate is high enough—that the media can be
+  // Enough data is available and the download rate is high enough that the media can be
   // played through to the end without interruption.
   HAVE_ENOUGH_DATA: 4,
 }
@@ -54,6 +150,10 @@ export const Preload = {
  * multitrack support.
  */
 export default class MultitrackAudio {
+
+  /*
+   * Properties
+   */
 
   /**
    * A Boolean attribute; if specified (even if the value is "false"!), the audio will
@@ -284,7 +384,7 @@ export default class MultitrackAudio {
    * The playback volume, in the range 0.0 (silent) to 1.0 (loudest).
    *
    * @type {Number}
-   * @throws RangeError
+   * @throws {RangeError}
    */
   _volume = 1
 
@@ -299,8 +399,93 @@ export default class MultitrackAudio {
         + `The volume provided (${volume}) is outside the range [0, 1]`
       )
     }
-    else {
+    else if (this._volume !== volume) {
       this._volume = volume
+      this.__eventEmitter.emit('volumechange', new CustomEvent('volumechange'))
+    }
+  }
+
+  /**
+   * Constructor
+   *
+   * @constructor
+   */
+  constructor() {
+
+    // Internal event emitter
+    this.__eventEmitter = new EventEmitter()
+
+    // Whether or not the audio has been paused
+    this._hasPaused = false
+  }
+
+  /*
+   * Methods
+   */
+
+  /**
+   *
+   *
+   * @param {String}   eventName [description]
+   * @param {Function} handler   [description]
+   */
+  addEventListener(eventName, handler) {
+    this.__eventEmitter.addListener(eventName, handler)
+  }
+
+  /**
+   *
+   *
+   * @param  {String}   eventName [description]
+   * @param  {Function} handler   [description]
+   */
+  removeEventListener(eventName, handler) {
+    this.__eventEmitter.removeListener(eventName, handler)
+  }
+
+  /**
+   * Resets the audio element and restarts the audio resource. Any pending events are
+   * discarded. How much audio data is fetched is still affected by the preload attribute.
+   * This method can be useful for releasing resources after any src attribute and source
+   * element descendants have been removed. Otherwise, it is usually unnecessary to use
+   * this method, unless required to rescan source element children after dynamic changes.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
+   */
+  load() {
+    this.__eventEmitter.emit('emptied', new CustomEvent('emptied'))
+  }
+
+  /**
+   * Pauses the audio playback.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/pause
+   */
+  pause() {
+    if (this._paused === false) {
+      this._paused = true
+      this._hasPaused = true
+      this.__eventEmitter.emit('pause', new CustomEvent('pause'))
+    }
+  }
+
+  /**
+   * Begins playback of the audio.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play
+   *
+   * @return {Promise} Resolves if playback successfully begun, rejects with an error
+   *                   if beginning playback failed.
+   */
+  play() {
+    if (this._paused === true) {
+      // TODO: Actually play audio
+      this._paused = false
+      this.__eventEmitter.emit('playing', new CustomEvent('playing'))
+
+      if (this._hasPaused === true) {
+        this.__eventEmitter.emit('play', new CustomEvent('play'))
+      }
     }
   }
 }
