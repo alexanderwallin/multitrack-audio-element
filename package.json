@@ -2,10 +2,16 @@
   "name": "multitrack-audio-element",
   "version": "0.1.0",
   "description": "A JavaScript (and HTML5) audio object that supports synchronized multitrack playback and streaming",
-  "main": "index.js",
+  "main": "dist/MultitrackAudio.js",
+  "files": [
+    "dist",
+    "src",
+    "tests"
+  ],
   "scripts": {
     "lint": "eslint src tests",
     "test": "ava tests",
+    "prebuild": "rimraf dist",
     "build": "babel --out-dir dist src"
   },
   "repository": {
@@ -23,8 +29,16 @@
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
     "babel-plugin-transform-object-rest-spread": "^6.20.2",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-es2016": "^6.16.0",
     "babel-preset-es2017": "^6.16.0",
+    "babel-register": "^6.18.0",
     "eslint": "^3.13.1",
-    "eslint-config-alexander": "^1.2.0"
+    "eslint-config-alexander": "^1.2.0",
+    "rimraf": "^2.5.4"
+  },
+  "ava": {
+    "require": "babel-register",
+    "babel": "inherit"
   }
 }
