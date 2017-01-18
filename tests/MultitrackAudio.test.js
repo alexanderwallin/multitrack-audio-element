@@ -3,7 +3,8 @@
 import test from 'ava'
 import sinon from 'sinon'
 
-import MultitrackAudio, { CrossOrigin, MediaReadyState, Preload } from '../src/MultitrackAudio.js'
+import MultitrackAudio from '../src/MultitrackAudio.js'
+import { CrossOrigin, MediaReadyState, Preload } from '../src/enums.js'
 import { parsesAnyValueAsBool } from './_test-utils.js'
 
 let audio
