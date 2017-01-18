@@ -19,7 +19,7 @@ test('Defaults are correct', t => {
   t.is(audio.autoplay, false)
   t.is(audio.crossOrigin, CrossOrigin.ANONYMOUS)
   t.is(audio.currentTime, 0)
-  t.is(audio.duration, NaN)
+  t.true(Number.isNaN(audio.duration))
   t.is(audio.ended, false)
   t.is(audio.error, null)
   t.is(audio.loop, false)
@@ -102,12 +102,12 @@ test('currentTime throws a TypeError when set to a non-finite value', t => {
 
 test('duration cannot be set manually', t => {
   audio.duration = 123
-  t.is(audio.duration, NaN)
+  t.true(Number.isNaN(audio.duration))
 })
 
 test('error cannot be set manually', t => {
   audio.error = new Error('this aint right')
-  t.is(audio.error, NaN)
+  t.is(audio.error, null)
 })
 
 test('loop accepts any truthy or falsy values', t => {
