@@ -1,3 +1,4 @@
 {
-  "extends": "alexander"
+  "extends": "alexander",
+  "parser": "babel-eslint"
 }
