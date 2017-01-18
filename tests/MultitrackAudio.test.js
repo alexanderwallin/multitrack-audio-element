@@ -47,9 +47,19 @@ test.todo('Implement and test property played')
 test.todo('Implement and test property seekable')
 test.todo('Implement and test property srcObject')
 
+/**
+ * autoplay
+ */
+
 test('autoplay accepts any truthy or falsy values', t => {
   parsesAnyValueAsBool(t, audio, 'autoplay')
 })
+
+test.todo('autoplay starts playback when canplaythrough is triggered')
+
+/**
+ * crossOrigin
+ */
 
 test('crossOrigin is either use-credentials or the default anonymous', t => {
   audio.crossOrigin = 'let me in'
@@ -64,6 +74,10 @@ test('crossOrigin is either use-credentials or the default anonymous', t => {
   audio.crossOrigin = CrossOrigin.USE_CREDENTIALS
   t.is(audio.crossOrigin, CrossOrigin.USE_CREDENTIALS)
 })
+
+/**
+ * currentTime
+ */
 
 test('currentTime converts all non-finite values to a number', t => {
   audio.currentTime = 123
@@ -101,28 +115,59 @@ test('currentTime throws a TypeError when set to a non-finite value', t => {
   t.truthy(err5)
 })
 
+test('currentTime change triggers `seeking` event', t => {
+  const onSeeking = sinon.spy()
+  audio.addEventListener('seeking', onSeeking)
+  audio.currentTime = 1.23
+  t.is(onSeeking.callCount, 1)
+})
+
+/**
+ * duration
+ */
+
 test('duration cannot be set manually', t => {
   audio.duration = 123
   t.true(Number.isNaN(audio.duration))
 })
+
+/**
+ * error
+ */
 
 test('error cannot be set manually', t => {
   audio.error = new Error('this aint right')
   t.is(audio.error, null)
 })
 
+/**
+ * loop
+ */
+
 test('loop accepts any truthy or falsy values', t => {
   parsesAnyValueAsBool(t, audio, 'loop')
 })
+
+/**
+ * muted
+ */
 
 test('muted accepts any truthy or falsy values', t => {
   parsesAnyValueAsBool(t, audio, 'muted')
 })
 
+/**
+ * paused
+ */
+
 test('paused cannot be set manually', t => {
   audio.paused = false
   t.is(audio.paused, true)
 })
+
+/**
+ * preload
+ */
 
 test('preload defaults to "auto" when given a non-supported value', t => {
   audio.preload = 'shenanigans'
@@ -135,6 +180,14 @@ test('preload defaults to "auto" when given a non-supported value', t => {
   t.is(audio.preload, 'auto')
 })
 
+test.todo('preload = "none" prevents all preloading')
+test.todo('preload = "metadata" only preloads metadata')
+test.todo('preload = "auto" preloads as much data as needed to start playback')
+
+/**
+ * readyState
+ */
+
 test('readyState cannot be set manually', t => {
   audio.readyState = MediaReadyState.HAVE_METADATA
   t.is(audio.readyState, MediaReadyState.HAVE_NOTHING)
@@ -146,10 +199,57 @@ test('readyState cannot be set manually', t => {
   t.is(audio.readyState, MediaReadyState.HAVE_NOTHING)
 })
 
+test.cb('readyState changes triggers corresponding media events', t => {
+  t.plan(4)
+
+  const onLoadedMetadata = sinon.spy()
+  const onLoadedData = sinon.spy()
+  const onCanPlay = sinon.spy()
+  const onCanPlayThrough = sinon.spy()
+
+  audio.addEventListener('loadedmetadata', onLoadedMetadata)
+  audio.addEventListener('loadeddata', onLoadedData)
+  audio.addEventListener('canplay', onCanPlay)
+  audio.addEventListener('canplaythrough', onCanPlayThrough)
+
+  audio.addEventListener('readystatechange', () => {
+    if (audio.readyState === MediaReadyState.HAVE_METADATA) {
+      t.true(onLoadedMetadata.calledOnce)
+    }
+    else if (audio.readyState === MediaReadyState.HAVE_CURRENT_DATA) {
+      t.true(onLoadedData.calledOnce)
+    }
+    else if (audio.readyState === MediaReadyState.HAVE_FUTURE_DATA) {
+      t.true(onCanPlay.calledOnce)
+    }
+    else if (audio.readyState === MediaReadyState.HAVE_ENOUGH_DATA) {
+      t.true(onCanPlayThrough.calledOnce)
+      t.end()
+    }
+  })
+
+  // TODO: Load audio somehow
+  audio.load()
+
+  // TODO: This timeout should me more sensible. For now we just kill it.
+  setTimeout(() => {
+    t.fail('Did not trigger any readystatechange events in time')
+    t.end()
+  })
+})
+
+/**
+ * seeking
+ */
+
 test('seeking cannot be set manually', t => {
   audio.seeking = true
   t.is(audio.seeking, false)
 })
+
+/**
+ * volume
+ */
 
 test('volume throws a RangeError when given value is outside the range [0, 1]', t => {
   const originalVolume = audio.volume
@@ -181,46 +281,8 @@ test.todo('Test TimeRange attributes')
 test.todo('The autoplay attribute has precedence over preload')
 
 /*
- * Methods
+ * Events
  */
-
-test('load() triggers `emptied` event', t => {
-  const onEmptied = sinon.spy()
-  audio.addEventListener('emptied', onEmptied)
-  audio.load()
-  t.is(onEmptied.callCount, 1)
-})
-
-test('pause() triggers `pause` event', t => {
-  const onPause = sinon.spy()
-  audio.addEventListener('pause', onPause)
-  audio.play()
-  audio.pause()
-  t.is(onPause.callCount, 1)
-})
-
-test('play() triggers the `play` and/or `playing` events', t => {
-  const onPlay = sinon.spy()
-  const onPlaying = sinon.spy()
-
-  audio.addEventListener('play', onPlay)
-  audio.addEventListener('playing', onPlaying)
-
-  audio.play()
-  t.is(onPlaying.callCount, 1)
-
-  audio.pause()
-  audio.play()
-  t.is(onPlay.callCount, 1)
-  t.is(onPlaying.callCount, 2)
-})
-
-test('seek(time) triggers `seeking` event', t => {
-  const onSeeking = sinon.spy()
-  audio.addEventListener('seeking', onSeeking)
-  audio.seek(1.23)
-  t.is(onSeeking.callCount, 1)
-})
 
 test.todo('Implement and test the event abort')
 test.todo('Implement and test the event canplay')
@@ -238,3 +300,88 @@ test.todo('Implement and test the event stalled')
 test.todo('Implement and test the event suspend')
 test.todo('Implement and test the event timeupdate')
 test.todo('Implement and test the event waiting')
+
+/**
+ * canPlayType()
+ */
+
+test.todo('canPlayType(mimeType) returns the same value as HTMLAudioElement')
+
+/**
+ * load()
+ */
+
+test.cb('load() resets the audio state to be empty and from start', t => {
+  t.plan(4)
+
+  // TODO: Load audio
+  audio.play()
+
+  setTimeout(() => {
+    audio.load()
+    t.is(audio.currentTime, 0)
+    t.true(Number.isNaN(audio.duration))
+    // t.is(audio.ended, false) ??
+    t.is(audio.paused, true)
+    t.is(audio.readyState, MediaReadyState.HAVE_NOTHING)
+    t.end()
+  }, 100)
+})
+
+test.todo('load() triggers `loadedmetadata` event')
+
+test('load() triggers `emptied` event', t => {
+  const onEmptied = sinon.spy()
+  audio.addEventListener('emptied', onEmptied)
+  audio.load()
+  t.is(onEmptied.callCount, 1)
+})
+
+test.todo('load() - How much media data is fetched is still affected by the preload attribute.')
+
+/**
+ * pause()
+ */
+
+test('pause() triggers `pause` event', t => {
+  const onPause = sinon.spy()
+  audio.addEventListener('pause', onPause)
+  audio.play()
+  audio.pause()
+  t.is(onPause.callCount, 1)
+})
+
+test('pause() stops audio playback', t => {
+  // TODO: Load audio from source
+  audio.play()
+  audio.pause()
+  t.is(audio.paused, true)
+
+  t.fail('Check that audio playback in the browser is actually paused')
+})
+
+/**
+ * play()
+ */
+
+test('play() triggers the `play` and/or `playing` events', t => {
+  const onPlay = sinon.spy()
+  const onPlaying = sinon.spy()
+
+  audio.addEventListener('play', onPlay)
+  audio.addEventListener('playing', onPlaying)
+
+  audio.play()
+  t.is(onPlaying.callCount, 1)
+
+  audio.pause()
+  audio.play()
+  t.is(onPlay.callCount, 1)
+  t.is(onPlaying.callCount, 2)
+})
+
+test.todo('play() does not resolve its promise when no source has been added')
+test.todo('play() rejects with a NotSupportedError when trying to play an unsupported audio file')
+test.todo('play() resolves when playback starts')
+
+test.todo('Figure out when to throw NotAllowedError')
