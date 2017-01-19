@@ -1,0 +1,4 @@
+/*
+One or more tracks will be emitted by the Demuxer when enough is known
+about them to start decoding them
+*/

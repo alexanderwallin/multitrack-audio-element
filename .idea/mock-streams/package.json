@@ -1,0 +1,31 @@
+{
+  "name": "multitrack-audio-element-mock-streams",
+  "description": "Testbed for using streams to enable multitrack audio",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "DEBUG=true node server.js",
+    "test": "ava tests -v"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "webpack": "^1.12.3",
+    "webpack-dev-server": "^1.12.1",
+    "webpack-hot-middleware": "^2.9.1"
+  },
+  "dependencies": {
+    "properties-and-events": "0.0.2",
+    "web-streams": "^0.8.0"
+  },
+  "ava": {
+    "require": "babel-register",
+    "babel": "inherit"
+  }
+}
