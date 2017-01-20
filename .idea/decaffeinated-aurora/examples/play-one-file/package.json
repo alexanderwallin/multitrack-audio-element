@@ -1,0 +1,13 @@
+{
+  "name": "decaffeinated-aurora-example",
+  "description": "Web page demonstrating aurora translated from coffeescript to ES6",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "DEBUG=true node server.js"
+  },
+  "devDependencies": {
+    "webpack": "^1.12.3",
+    "webpack-dev-server": "^1.12.1"
+  }
+}
