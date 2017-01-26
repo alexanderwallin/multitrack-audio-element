@@ -1,0 +1,8 @@
++ set up multiple players (more than 6), and play them. 
+See how it goes
+
++ look at the messages being sent between the parts of aurora,
+and substitute a new caching player which stores the audio in
+an audio buffer
+
+ 
