@@ -7,8 +7,6 @@
 
 import EventEmitter from './core/EventEmitter'
 
-const FRAME_SIZE = 4096
-
 class CachingAudioBuffer extends EventEmitter {
   constructor (asset, audioContext) {
     super()
@@ -31,17 +29,18 @@ class CachingAudioBuffer extends EventEmitter {
     })
 
     this.asset.decodePacket()
-
   }
 
   _initialiseAudioBuffer () {
     if (this.audioBuffer) { return }
     const context = this.context = this.sharedAudioContext || new AudioContext()
-
     const channelCount = this.format.channelsPerFrame
+    // TODO : for mp3 the duration is not always set beforehand, so
+    // we need to figure out how to deal with this
+    const duration = this.duration || 60
     this.audioBuffer = context.createBuffer(
       channelCount,
-      Math.round(this.format.sampleRate * this.duration / 1000),
+      Math.round(this.format.sampleRate * duration / 1000),
       this.format.sampleRate
     )
 
@@ -63,14 +62,13 @@ class CachingAudioBuffer extends EventEmitter {
       return [p % channelCount, Math.floor(p / channelCount)]
     }
 
-    for (let i=0; i<buffer.length; i++){
+    for (let i = 0; i < buffer.length; i++) {
       let [channel, position] = channelAndPosition(this.audioBufferWritePosition)
       this.channels[channel][position] = buffer[i]
       this.audioBufferWritePosition++
     }
 
     this.asset.decodePacket()
-
   }
 
   reset () {

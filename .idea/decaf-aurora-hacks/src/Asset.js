@@ -20,7 +20,6 @@ class Asset extends EventEmitter {
     this.findDecoder = this.findDecoder.bind(this)
     this._decode = this._decode.bind(this)
     this.source = source
-    super()
     this.buffered = 0
     this.duration = null
     this.format = null
@@ -32,12 +31,12 @@ class Asset extends EventEmitter {
     this.source.once('data', this.probe)
     this.source.on('error', err => {
       this.emit('error', err)
-      return this.stop()
+      this.stop()
     })
 
     this.source.on('progress', buffered => {
       this.buffered = buffered
-      return this.emit('buffer', this.buffered)
+      this.emit('buffer', this.buffered)
     })
   }
 
@@ -63,7 +62,7 @@ class Asset extends EventEmitter {
     this.source.start()
 
     if (this.decoder && this.shouldDecode) {
-      return this._decode()
+      this._decode()
     }
   }
 
@@ -71,7 +70,7 @@ class Asset extends EventEmitter {
     if (!this.active) { return }
 
     this.active = false
-    return this.source.pause()
+    this.source.pause()
   }
 
   get (event, callback) {
@@ -85,12 +84,12 @@ class Asset extends EventEmitter {
         return callback(value)
       })
 
-      return this.start()
+      this.start()
     }
   }
 
   decodePacket () {
-    return this.decoder.decode()
+    this.decoder.decode()
   }
 
   decodeToBuffer (callback) {
@@ -99,7 +98,7 @@ class Asset extends EventEmitter {
     let chunks = []
     this.on('data', dataHandler = function (chunk) {
       length += chunk.length
-      return chunks.push(chunk)
+      chunks.push(chunk)
     })
 
     this.once('end', function () {
@@ -112,10 +111,10 @@ class Asset extends EventEmitter {
       }
 
       this.off('data', dataHandler)
-      return callback(buf)
+      callback(buf)
     })
 
-    return this.start()
+    this.start()
   }
 
   probe (chunk) {
@@ -195,7 +194,7 @@ class Asset extends EventEmitter {
 
   _decode () {
     while (this.decoder.decode() && this.active) { continue }
-    if (this.active) { return this.decoder.once('data', this._decode) }
+    if (this.active) { this.decoder.once('data', this._decode) }
   }
 
   destroy () {
@@ -203,7 +202,7 @@ class Asset extends EventEmitter {
     __guard__(this.demuxer, x => x.off())
     __guard__(this.decoder, x1 => x1.off())
     __guard__(this.source, x2 => x2.off())
-    return this.off()
+    this.off()
   }
 }
 

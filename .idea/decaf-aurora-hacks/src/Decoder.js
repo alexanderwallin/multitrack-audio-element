@@ -4,6 +4,8 @@ import Stream from './core/Stream'
 import Bitstream from './core/Bitstream'
 import UnderflowError from './core/UnderflowError'
 
+window.UnderflowError = UnderflowError
+
 let codecs
 class Decoder extends EventEmitter {
   static initClass () {
@@ -61,11 +63,12 @@ class Decoder extends EventEmitter {
     try {
       packet = this.readChunk()
     } catch (error) {
-      if (!(error instanceof UnderflowError)) {
+      if (!(error.name === 'UnderflowError')) {
         this.emit('error', error)
         return false
       }
     }
+
 
     // if a packet was successfully read, emit it
     if (packet) {

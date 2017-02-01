@@ -1,5 +1,5 @@
 import Base from './core/Base'
-import AvBuffer from './core/AvBuffer'
+import Buffer from './core/AvBuffer'
 import BufferList from './core/BufferList'
 import Stream from './core/Stream'
 import Bitstream from './core/Bitstream'
