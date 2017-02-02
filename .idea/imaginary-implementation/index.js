@@ -1,8 +1,9 @@
 import { MultitrackAudio } from 'multitrack-audio-element'
+import { downsample } from './downsample.js'
 
 const ctx = new AudioContext()
-
 const mimeCodec = 'audio/mp4; codecs="mp4a.40.2"'
+const waveformData = []
 
 if (!MultitrackAudio.canPlayType(mimeCodec)) {
   throw new Error(`Unsupported media type: ${mimeCodec}`)
@@ -15,7 +16,7 @@ song.loop = true
 song.volume = 0.7
 
 // Listen for errors
-song.addEventListener('error', (evt) => console.error(evt.details.error))
+song.addEventListener('error', (evt) => console.error(evt.details.error)) // ?
 
 // Add sources
 song.addSource('track1.mp4', mimeCodec)
@@ -24,8 +25,19 @@ song.addSource('track3.mp4', mimeCodec)
 song.addSource('track4.mp4', mimeCodec)
 
 // Listen for meta
-song.addEventListener('loadedmetadata', (evt) => {
+song.addEventListener('loadedmetadata', () => {
   console.log('got metadata, song duration is:', song.duration)
+})
+
+// Listen for audio being loaded and make a waveform from it
+//
+// This is obviously extremely simplified.
+//
+// Should there be a `decodeddata` event or something similar? In this
+// case you would have to decode the data again, which is already solved
+// inside MultitrackAudio.
+song.addEventListener('loadeddata', (evt) => {
+  waveformData.push(downsample(evt.details.data))
 })
 
 // Play as soon as we have enough data
@@ -35,6 +47,21 @@ song.addEventListener('canplaythrough', () => {
 
 // Load sources
 song.load()
+
+// Perform seeking
+song.addEventListener('seeking', () => console.log(`seeking to: ${song.currentTime}`))
+song.addEventListener('seeked', () => console.log(`seeked to: ${song.currentTime}`))
+song.currentTime = 20.384
+
+// Pause when clicking pause button
+document.querySelector('.pause-button').addEventListener('click', () => {
+  song.pause()
+  console.log(song.paused) // => true
+})
+
+/**
+ * Web Audio API
+ */
 
 // Connect the first three tracks to the main output
 song.connect(1, ctx.destination)
@@ -50,14 +77,3 @@ hpf.frequency = 1000
 
 track1Node.connect(hpf)
 hpf.connect(ctx.destination)
-
-// Perform seeking
-song.addEventListener('seeking', (evt) => console.log(`seeking to: ${song.currentTime}`))
-song.addEventListener('seeked', (evt) => console.log(`seeked to: ${song.currentTime}`))
-song.currentTime = 20.384
-
-// Pause when clicking pause button
-document.querySelector('.pause-button').addEventListener('click', () => {
-  song.play()
-  console.log(song.paused) // => true
-})
