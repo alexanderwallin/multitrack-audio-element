@@ -1,13 +1,9 @@
-import { MultitrackAudio } from 'multitrack-audio-element'
+import { MultitrackAudio, Preload } from 'multitrack-audio-element'
 import { downsample } from './downsample.js'
+import { Mixer } from './mixer.js'
 
 const ctx = new AudioContext()
-const mimeCodec = 'audio/mp4; codecs="mp4a.40.2"'
 const waveformData = []
-
-if (!MultitrackAudio.canPlayType(mimeCodec)) {
-  throw new Error(`Unsupported media type: ${mimeCodec}`)
-}
 
 // Create and configure a multitrack audio object
 const song = new MultitrackAudio()
@@ -19,10 +15,13 @@ song.volume = 0.7
 song.addEventListener('error', (evt) => console.error(evt.details.error)) // ?
 
 // Add sources
-song.addSource('track1.mp4', mimeCodec)
-song.addSource('track2.mp4', mimeCodec)
-song.addSource('track3.mp4', mimeCodec)
-song.addSource('track4.mp4', mimeCodec)
+//
+// NOTE: Distinguish between single multitrack files and multiple track files
+// NOTE: Mime and codec is unnecessary and already taken care of by Demuxer
+song.addSource('track1.mp4')
+song.addSource('track2.mp4')
+song.addSource('track3.mp4')
+song.addSource('track4.mp4')
 
 // Listen for meta
 song.addEventListener('loadedmetadata', () => {
@@ -30,14 +29,10 @@ song.addEventListener('loadedmetadata', () => {
 })
 
 // Listen for audio being loaded and make a waveform from it
-//
-// This is obviously extremely simplified.
-//
-// Should there be a `decodeddata` event or something similar? In this
-// case you would have to decode the data again, which is already solved
-// inside MultitrackAudio.
-song.addEventListener('loadeddata', (evt) => {
-  waveformData.push(downsample(evt.details.data))
+song.addEventListener('decodedaudio', (evt) => {
+  const { trackIndex, startSample, endSample, data } = evt.detail
+  // Do something...
+  // waveformData[trackIndex].writeWaveFormDataAt(startSample, downsample(data))
 })
 
 // Play as soon as we have enough data
@@ -45,8 +40,20 @@ song.addEventListener('canplaythrough', () => {
   song.play()
 })
 
-// Load sources
+/**
+ * Preloading
+ */
+
+// Load sources manually
+song.preload = Preload.NONE
 song.load()
+
+// Preload automatically
+song.preload = Preload.AUTO
+
+// Preload metadata only
+song.preload = Preload.METADATA
+song.load() // Load tracks
 
 // Perform seeking
 song.addEventListener('seeking', () => console.log(`seeking to: ${song.currentTime}`))
@@ -63,17 +70,23 @@ document.querySelector('.pause-button').addEventListener('click', () => {
  * Web Audio API
  */
 
+// Create a (ficticious) mixer
+const mixer = new Mixer(ctx)
+mixer.setNumberOfChannels(4)
+
 // Connect the first three tracks to the main output
-song.connect(1, ctx.destination)
-song.connect(2, ctx.destination)
-song.connect(3, ctx.destination)
+song.connect(0, mixer.getChannelStrip(0))
+song.connect(1, mixer.getChannelStrip(1))
+song.connect(2, mixer.getChannelStrip(2))
+
+mixer.setVolume(0, 0.5)
 
 // Pipe track 4 through a high-pass filter
-const track1Node = song.getSourceNode(4)
+const track1Node = song.getSourceNode(3)
 
 const hpf = ctx.createBiquadFilter()
 hpf.type = 'highpass'
 hpf.frequency = 1000
 
 track1Node.connect(hpf)
-hpf.connect(ctx.destination)
+hpf.connect(mixer.getChannelStrip(3))
